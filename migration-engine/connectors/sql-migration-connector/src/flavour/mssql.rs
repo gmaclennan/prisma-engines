@@ -114,6 +114,15 @@ impl SqlFlavour for MssqlFlavour {
             .await?)
     }
 
+    async fn apply_migration_script(
+        &self,
+        migration_name: &str,
+        script: &str,
+        conn: &Connection,
+    ) -> ConnectorResult<()> {
+        super::generic_apply_migration_script(migration_name, script, conn).await
+    }
+
     fn migrations_table(&self) -> Table<'_> {
         (self.schema_name(), self.migrations_table_name()).into()
     }
@@ -152,12 +161,12 @@ impl SqlFlavour for MssqlFlavour {
     }
 
     async fn describe_schema<'a>(&'a self, connection: &Connection) -> ConnectorResult<SqlSchema> {
-        sql_schema_describer::mssql::SqlSchemaDescriber::new(connection.quaint())
+        sql_schema_describer::mssql::SqlSchemaDescriber::new(connection.queryable())
             .describe(connection.connection_info().schema_name())
             .await
             .map_err(|err| match err.into_kind() {
                 DescriberErrorKind::QuaintError(err) => {
-                    quaint_error_to_connector_error(err, connection.connection_info())
+                    quaint_error_to_connector_error(err, &connection.connection_info())
                 }
                 e @ DescriberErrorKind::CrossSchemaReference { .. } => {
                     let err = KnownError::new(DatabaseSchemaInconsistent {
@@ -189,7 +198,7 @@ impl SqlFlavour for MssqlFlavour {
     }
 
     async fn reset(&self, connection: &Connection) -> ConnectorResult<()> {
-        let schema_name = connection.connection_info().schema_name();
+        let schema_name = connection.schema_name();
 
         let drop_procedures = format!(
             r#"

@@ -117,6 +117,15 @@ impl SqlFlavour for MysqlFlavour {
         Ok(connection.raw_cmd(&query).await?)
     }
 
+    async fn apply_migration_script(
+        &self,
+        migration_name: &str,
+        script: &str,
+        conn: &Connection,
+    ) -> ConnectorResult<()> {
+        super::generic_apply_migration_script(migration_name, script, conn).await
+    }
+
     fn check_database_version_compatibility(
         &self,
         datamodel: &Datamodel,
@@ -182,12 +191,12 @@ impl SqlFlavour for MysqlFlavour {
     }
 
     async fn describe_schema<'a>(&'a self, connection: &Connection) -> ConnectorResult<SqlSchema> {
-        sql_schema_describer::mysql::SqlSchemaDescriber::new(connection.quaint())
+        sql_schema_describer::mysql::SqlSchemaDescriber::new(connection.queryable())
             .describe(connection.connection_info().schema_name())
             .await
             .map_err(|err| match err.into_kind() {
                 DescriberErrorKind::QuaintError(err) => {
-                    quaint_error_to_connector_error(err, connection.connection_info())
+                    quaint_error_to_connector_error(err, &connection.connection_info())
                 }
                 DescriberErrorKind::CrossSchemaReference { .. } => {
                     unreachable!("No schemas in MySQL")
@@ -197,7 +206,8 @@ impl SqlFlavour for MysqlFlavour {
 
     async fn drop_database(&self, database_url: &str) -> ConnectorResult<()> {
         let connection = connect(database_url).await?;
-        let db_name = connection.connection_info().dbname().unwrap();
+        let connection_info = connection.connection_info();
+        let db_name = connection_info.dbname().unwrap();
 
         connection.raw_cmd(&format!("DROP DATABASE `{}`", db_name)).await?;
 
@@ -221,7 +231,7 @@ impl SqlFlavour for MysqlFlavour {
             .unwrap()
         });
 
-        let db_name = connection.connection_info().schema_name();
+        let db_name = connection.schema_name();
 
         if MYSQL_SYSTEM_DATABASES.is_match(db_name) {
             return Err(SystemDatabase(db_name.to_owned()).into());
@@ -295,7 +305,8 @@ impl SqlFlavour for MysqlFlavour {
             ));
         }
 
-        let db_name = connection.connection_info().dbname().unwrap();
+        let connection_info = connection.connection_info();
+        let db_name = connection_info.dbname().unwrap();
 
         connection.raw_cmd(&format!("DROP DATABASE `{}`", db_name)).await?;
         connection.raw_cmd(&format!("CREATE DATABASE `{}`", db_name)).await?;

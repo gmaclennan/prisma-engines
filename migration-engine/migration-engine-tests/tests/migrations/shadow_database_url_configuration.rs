@@ -174,7 +174,7 @@ fn shadow_db_not_reachable_error_must_have_the_right_connection_info(api: TestAp
             is_panic: false,
             inner: Known(
                 KnownError {
-                    message: "Can\'t reach database server at `localhost`:`39824`\n\nPlease make sure your database server is running at `localhost`:`39824`.",
+                    message: "Can't reach database server at `localhost`:`39824`\n\nPlease make sure your database server is running at `localhost`:`39824`.",
                     meta: Object({
                         "database_host": String(
                             "localhost",
