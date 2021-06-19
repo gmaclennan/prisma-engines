@@ -19,7 +19,12 @@ jobs:
         with:
           toolchain: stable
           default: true
-      - run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android
+      - run: |
+          echo "[target.armv7-linux-androideabi]" > .cargo/config
+          echo "ar = \"${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar\"" >> .cargo/config
+          echo "linker = \"${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang\"" >> .cargo/config
+          cat .cargo/config
+      - run: rustup target add armv7-linux-androideabi
       - run: echo "::set-output name=NDK_TOOLCHAINS::${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
         id: android
       - uses: actions/cache@v2
