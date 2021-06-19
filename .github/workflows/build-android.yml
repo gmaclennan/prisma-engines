@@ -1,0 +1,23 @@
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    name: "Android build"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use specific Java version for sdkmanager to work
+        uses: joschi/setup-jdk@v2
+        with:
+          java-version: "openjdk8"
+          architecture: "x64"
+      - name: Delete newer NDK version
+        run: |
+          rm -rf $ANDROID_HOME/ndk/22*
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
