@@ -19,7 +19,8 @@ jobs:
         with:
           toolchain: stable
           default: true
-      - run: echo '::set-output name=ANDROID_NDK_HOME::${ANDROID_NDK_HOME}'
+      - run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android
+      - run: echo '::set-output name=NDK_TOOLCHAINS::${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin'
         id: android
       - uses: actions/cache@v2
         with:
@@ -28,4 +29,13 @@ jobs:
             ~/.cargo/git
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - run: ls -al ${{ steps.android.ANDROID_NDK_HOME }}
+      - uses: actions-rs/cargo
+        with:
+          command: build
+          args: --target armv7-linux-androideabi --release
+        env:
+          CC: ${{ steps.android.NDK_TOOLCHAINS }}/armv7a-linux-androideabi30-clang
+          CXX: ${{ steps.android.NDK_TOOLCHAINS }}/armv7a-linux-androideabi30-clang++
+          AR: ${{ steps.android.NDK_TOOLCHAINS }}/arm-linux-androideabi-ar
+          LD: ${{ steps.android.NDK_TOOLCHAINS }}/arm-linux-androideabi-ld
+          RANLIB: ${{ steps.android.NDK_TOOLCHAINS }}/arm-linux-androideabi-ranlib
