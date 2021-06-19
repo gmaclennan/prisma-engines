@@ -19,6 +19,13 @@ jobs:
         with:
           toolchain: stable
           default: true
-      - uses: actions-rs/cargo@v1
+      - run: echo '::set-output name=ANDROID_NDK_HOME::${ANDROID_NDK_HOME}'
+        id: android
+      - uses: actions/cache@v2
         with:
-          command: check
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - run: ls -al ${{ steps.android.ANDROID_NDK_HOME }}
