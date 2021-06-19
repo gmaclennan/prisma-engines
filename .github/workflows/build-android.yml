@@ -34,8 +34,8 @@ jobs:
           command: build
           args: --target armv7-linux-androideabi --release
         env:
-          CC: ${{ steps.android.NDK_TOOLCHAINS }}/armv7a-linux-androideabi30-clang
-          CXX: ${{ steps.android.NDK_TOOLCHAINS }}/armv7a-linux-androideabi30-clang++
-          AR: ${{ steps.android.NDK_TOOLCHAINS }}/arm-linux-androideabi-ar
-          LD: ${{ steps.android.NDK_TOOLCHAINS }}/arm-linux-androideabi-ld
-          RANLIB: ${{ steps.android.NDK_TOOLCHAINS }}/arm-linux-androideabi-ranlib
+          CC: ${{ steps.android.outputs.NDK_TOOLCHAINS }}/armv7a-linux-androideabi30-clang
+          CXX: ${{ steps.android.outputs.NDK_TOOLCHAINS }}/armv7a-linux-androideabi30-clang++
+          AR: ${{ steps.android.outputs.NDK_TOOLCHAINS }}/arm-linux-androideabi-ar
+          LD: ${{ steps.android.outputs.NDK_TOOLCHAINS }}/arm-linux-androideabi-ld
+          RANLIB: ${{ steps.android.outputs.NDK_TOOLCHAINS }}/arm-linux-androideabi-ranlib
