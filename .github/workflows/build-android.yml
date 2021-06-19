@@ -20,6 +20,8 @@ jobs:
           toolchain: stable
           default: true
       - run: |
+          ls -al
+          ls -al .cargo
           echo "[target.armv7-linux-androideabi]" > .cargo/config
           echo "ar = \"${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/arm-linux-androideabi-ar\"" >> .cargo/config
           echo "linker = \"${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi30-clang\"" >> .cargo/config
