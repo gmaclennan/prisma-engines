@@ -76,5 +76,6 @@ features = [
   "mysql",
   "mssql",
   "bigdecimal",
+  "vendored-openssl"
 ]
 git = "https://github.com/prisma/quaint"
